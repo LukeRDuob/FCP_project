@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-
+import argparse
 
 # create class for Queue (used in Breadth-first search)
 class Queue:
@@ -39,13 +39,16 @@ class Network:
 			self.nodes = nodes
 	
 	def get_mean_degree(self):
+		"""funtion to find mean degree of all nodes in the network"""
 		total_degree = 0
+		# sum all degrees together
 		for node in self.nodes:
 			total_degree += node.connections.count(1)
+		# divide sum by number of nodes and return to give mean
 		return total_degree / len(self.nodes)
 
 	def get_mean_clustering(self):
-		""""""
+		"""returns the mean clustering coefficient for the network as a float"""
 		sum_coef = 0  # sum of coefficients
 		for node in self.nodes:
 			sum_coef += self.cluster_coef(node)
@@ -54,6 +57,7 @@ class Network:
 		return mean_cluster_coef
 
 	def get_mean_path_length(self):
+		"""function that finds the mean path length for all nodes in the network"""
 		total = 0
 		for node in self.nodes:
 			total += self.mean_path_length(node)    
@@ -64,17 +68,24 @@ class Network:
 		This function makes a *random* network of size N.
 		Each node is connected to each other node with probability p
 		'''
-
+		# create attribute for the nodes in the network
 		self.nodes = []
+		# create N nodes for the network
 		for node_number in range(N):
+			# assign random value
 			value = np.random.random()
+			# set all connections to 0 
 			connections = [0 for _ in range(N)]
+			# add node to list
 			self.nodes.append(Node(value, node_number, connections))
 
+		# generate random connections based off probability
 		for (index, node) in enumerate(self.nodes):
 			for neighbour_index in range(index+1, N):
 				if np.random.random() < connection_probability:
+					# set current index position in the connections list to 1
 					node.connections[neighbour_index] = 1
+					# set index of other neighbour to 1 to ensure the network is undirected
 					self.nodes[neighbour_index].connections[index] = 1
 		
 	def mean_path_length(self, start):
@@ -92,11 +103,11 @@ class Network:
 		return n * (n - 1)/2 
     
 	def cluster_coef(self, node):
-		'''returns the mean clustering coefficient for a node as an int'''
+		'''returns the clustering coefficient for a node'''
 
+		#find neighbours and 
 		neighbours = node.get_neighbours()
 		possible_connects = self.get_possible_connections(len(neighbours))
-		print("possible connects", possible_connects)
 		used = []  # list of used nodes to avoid counting the same connection twice 
 		connects = 0  # counts number of connections
         # iterate through possible connections checking if neighbours link to each other
@@ -110,10 +121,11 @@ class Network:
 					if [neighbour, other_neighbour] not in used:
 						connects += 1
 						used.append([other_neighbour, neighbour])
-
-		coef = 0
+		# avoid dividing by 0 in cases when there are no possible connections 
 		if possible_connects != 0: 
-			connects / possible_connects   
+			coef = connects / possible_connects
+		else: 
+			coef = 0	   
 		return coef        
 
 
@@ -141,6 +153,7 @@ class Network:
 		node_to_check = goal
 		start_node.parent = None
 		route = []
+		# retrace until no more parent nodes
 		while node_to_check.parent:
 			route.append(node_to_check)
 			node_to_check = node_to_check.parent
@@ -149,31 +162,36 @@ class Network:
 		return [node.value for node in route[::-1]]
 
 	def plot(self):
-			print("-")	
-
+			"""function to plot the network"""
+			# create figure
 			fig = plt.figure()
 			ax = fig.add_subplot(111)
-			ax.set_axis_off()
+			ax.set_axis_off()  # remove axes
 
+			# create ring to help position the nodes 
 			num_nodes = len(self.nodes)
 			network_radius = num_nodes * 10
 			ax.set_xlim([-1.1*network_radius, 1.1*network_radius])
 			ax.set_ylim([-1.1*network_radius, 1.1*network_radius])
-
+			
+			# find coodinates for the nodes 
 			for (i, node) in enumerate(self.nodes):
 				node_angle = i * 2 * np.pi / num_nodes
 				node_x = network_radius * np.cos(node_angle)
 				node_y = network_radius * np.sin(node_angle)
 
+				# draw circle to represent each node
 				circle = plt.Circle((node_x, node_y), 0.3*num_nodes, color=cm.hot(node.value))
 				ax.add_patch(circle)
 
+				# find neighbouring nodes for the current node to connect to 
 				for neighbour_index in range(i+1, num_nodes):
 					if node.connections[neighbour_index]:
+						# find location of neibouring node
 						neighbour_angle = neighbour_index * 2 * np.pi / num_nodes
 						neighbour_x = network_radius * np.cos(neighbour_angle)
 						neighbour_y = network_radius * np.sin(neighbour_angle)
-
+						# draw edge 
 						ax.plot((node_x, neighbour_x), (node_y, neighbour_y), color='black')
 			plt.show()			
 
@@ -225,15 +243,30 @@ def test_networks():
 
 	print("All tests passed")
 
-
 '''
 ==============================================================================================================
 This section contains code for the main function- you should write some code for handling flags here
 ==============================================================================================================
 '''
+def task_3_parse():
+	parser = argparse.ArgumentParser(description='Opinion dynamics')
+
+	parser.add_argument("-test_network", action="store_true")
+	parser.add_argument("-network", nargs="+")
+
+	args = parser.parse_args()
+	if args.test_network:
+		print("testing task 3")
+
+	if args.network!=None:
+		network_size = args.network
+		
+		
 
 def main():
-	#You should write some code for handling flags here
+	# if a size is provided  
+	if task_3_parse!=None:	
+		node_number = task_3_parse()
 	network = Network()
 	network.make_random_network(6, 0.6)
 	network.plot()
