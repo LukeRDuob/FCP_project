@@ -224,8 +224,8 @@ def test_networks():
 
 	print("Testing one-sided network")
 	assert(network.get_mean_degree()==1), network.get_mean_degree()
-	assert(network.get_clustering()==0),  network.get_clustering()
-	assert(network.get_path_length()==5), network.get_path_length()
+	assert(network.get_mean_clustering()==0),  network.get_mean_clustering()
+	assert(network.get_mean_path_length()==5), network.get_mean_path_length()
 
 	nodes = []
 	num_nodes = 10
@@ -238,8 +238,8 @@ def test_networks():
 
 	print("Testing fully connected network")
 	assert(network.get_mean_degree()==num_nodes-1), network.get_mean_degree()
-	assert(network.get_clustering()==1),  network.get_clustering()
-	assert(network.get_path_length()==1), network.get_path_length()
+	assert(network.get_mean_clustering()==1),  network.get_mean_clustering()
+	assert(network.get_mean_path_length()==1), network.get_mean_path_length()
 
 	print("All tests passed")
 
@@ -249,31 +249,37 @@ This section contains code for the main function- you should write some code for
 ==============================================================================================================
 '''
 def task_3_parse():
+	"""function to check for flags and carry out correct processes """
+	# create parser to access arguments from the terminal
 	parser = argparse.ArgumentParser(description='Opinion dynamics')
-
+	# add arguments for task 3 
 	parser.add_argument("-test_network", action="store_true")
-	parser.add_argument("-network", nargs="+")
+	parser.add_argument("-network", nargs='?', type=int, default=6)
 
 	args = parser.parse_args()
+
+	# check if the flags are used
 	if args.test_network:
 		print("testing task 3")
+		# run test function
 
-	if args.network!=None:
-		network_size = args.network
-		
-		
+	# set network size
+	network_size = args.network  # default size
+	
+	return network_size
 
 def main():
-	# if a size is provided  
-	if task_3_parse!=None:	
-		node_number = task_3_parse()
+		
+	node_number = task_3_parse()
 	network = Network()
-	network.make_random_network(6, 0.6)
+	network.make_random_network(node_number, 0.6)
 	network.plot()
-
-	print("mean path length", network.get_mean_path_length())
-	print("mean degree", network.get_mean_degree())
+	
+	
+	print("Mean degree:", network.get_mean_degree())
+	print("Average path length:", network.get_mean_path_length())
 	print("mean clustering coefficient", network.get_mean_clustering())
+
 
 
 
