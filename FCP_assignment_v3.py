@@ -467,51 +467,48 @@ This section contains code for the main function- you should write some code for
 ==============================================================================================================
 '''
 
-def task_3_parse():
-	"""function to check for flags and carry out correct processes """
+def all_flags():
+	"""function to check all flags that could be inputted"""
+	
 	# create parser to access arguments from the terminal
 	parser = argparse.ArgumentParser(description='Opinion dynamics')
-	# add arguments for task 3 
-	parser.add_argument("-test_network", action="store_true")
-	parser.add_argument("-network", nargs='?', type=int, default=6)
 
-	args = parser.parse_args()
+	# add arguments for task 1
 
-	# check if the flags are used
-	if args.test_network:
-		print("testing task 3")
-		# run test function
-
-	# set network size
-	network_size = args.network  # default size
-	
-	return network_size
-
-def main():
-	
-	parser = argparse.ArgumentParser(description='Generate plots to show how opinions change with interactions')
-
+	# add arguments for task 2
 	parser.add_argument('-beta', nargs='?', type=float, default=0.2)
 	parser.add_argument('-threshold', nargs='?', type=float, default=0.2)
 	parser.add_argument('-population_size', nargs='?', type=int, default=100)
 	parser.add_argument('-timestep', nargs='?', type=int, default=100)
 	parser.add_argument('-test_defaunt', action = 'store_true')
 	parser.add_argument('-defaunt', action = 'store_true')
+	
+	# add arguments for task 3 
+	parser.add_argument("-test_network", action="store_true")
+	parser.add_argument("-network", nargs='?', type=int, default=6)
+	
+	# add arguments for task 4
 
-	args = parser.parse_args()  # Parse the command-line arguments
+	# parse args
+	args = parser.parse_args()
 
+	# execute flags
 	beta = args.beta
 	threshold = args.threshold
 	population_size = args.population_size
 	timestep = args.timestep
-
-
 	if args.defaunt:
 		defaunt_main(population_size, threshold, beta, timestep)
 	if args.test_defaunt:
 		test_defaunt()
-
-	node_number = task_3_parse()
+	if args.test_network:
+		print("testing task 3")
+		# run test function
+	
+	return beta, threshold, population_size, timestep, network_size	
+def main():
+	beta, threshold, population_size, timestep, node_number = all_flags()
+	
 	network = Network()
 	network.make_random_network(node_number, 0.6)
 	network.plot()
