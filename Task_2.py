@@ -4,7 +4,7 @@ import argparse
 import random
 
 def initialize_opinions(population_size):
-    #Initialize opinions randomly between 0 and 1
+    #Initialize the population's opinions randomly between 0 and 1
 
     return np.random.rand(population_size)
 
@@ -55,19 +55,21 @@ def defaunt_main(population_size, threshold, beta, timestep):
     opinions = initialize_opinions(population_size)
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    plt.ion()  # Turn on interactive mode
+    ''' Uncomment to see animation'''
+    #plt.ion()
     for t in range(timestep):
         
         plot_opinions_hist(opinions, t+1, ax1)
         plot_opinions_scatter(opinions, t+1, ax2, beta, threshold)
-        update_opinions(opinions, threshold, beta)
+        for step in range(timestep):
+            update_opinions(opinions, threshold, beta)
 
-        plt.draw()
-        plt.pause(0.01)
+        #plt.draw()
+        #plt.pause(0.01)
         if t != timestep-1:
             ax1.clear()
 
-    plt.ioff()
+    #plt.ioff()
     plt.show()
 
 def main():
