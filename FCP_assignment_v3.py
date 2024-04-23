@@ -459,27 +459,28 @@ def task_3_parse():
 
 def main():
 	
-    parser = argparse.ArgumentParser(description='Generate plots to show how opinions change with interactions')
-    
-    parser.add_argument('-beta', nargs='?', type=float, default=0.2)
-    parser.add_argument('-threshold', nargs='?', type=float, default=0.2)
-    parser.add_argument('-population_size', nargs='?', type=int, default=100)
-    parser.add_argument('-timestep', nargs='?', type=int, default=100)
-    parser.add_argument('-test_defaunt', action = 'store_true')
-    parser.add_argument('-defaunt', action = 'store_true')
+	parser = argparse.ArgumentParser(description='Generate plots to show how opinions change with interactions')
 
-    args = parser.parse_args()  # Parse the command-line arguments
+	parser.add_argument('-beta', nargs='?', type=float, default=0.2)
+	parser.add_argument('-threshold', nargs='?', type=float, default=0.2)
+	parser.add_argument('-population_size', nargs='?', type=int, default=100)
+	parser.add_argument('-timestep', nargs='?', type=int, default=100)
+	parser.add_argument('-test_defaunt', action = 'store_true')
+	parser.add_argument('-defaunt', action = 'store_true')
 
-    beta = args.beta
-    threshold = args.threshold
-    population_size = args.population_size
-    timestep = args.timestep
+	args = parser.parse_args()  # Parse the command-line arguments
+
+	beta = args.beta
+	threshold = args.threshold
+	population_size = args.population_size
+	timestep = args.timestep
 
 
-    if args.defaunt:
-        defaunt_main(population_size, threshold, beta, timestep)
-    if args.test_defaunt:
-        test_defaunt()	
+	if args.defaunt:
+		defaunt_main(population_size, threshold, beta, timestep)
+	if args.test_defaunt:
+		test_defaunt()
+
 	node_number = task_3_parse()
 	network = Network()
 	network.make_random_network(node_number, 0.6)
