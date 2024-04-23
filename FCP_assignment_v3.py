@@ -165,12 +165,42 @@ class Network:
 
 
 	def make_ring_network(self, N, neighbour_range=1):
-		#Your code  for task 4 goes here
+		self.nodes=[]
+		for node_number in range(N):
+			value = np.random.random()
+			connections = [0 for _ in range(N)]
+			self.nodes.append(Node(value, node_number, connections))
+		for (index, node) in enumerate(self.nodes):
+			for i in range(1,neighbour_range+1):
+				node.connections[(index+i)%N]=1
+				node.connections[(index-i)%N]=1
 		print("")
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
-		#Your code for task 4 goes here
-  		print("")
+		connectionmatrix=[]
+		self.make_ring_network(N, 2)
+		for (index, node) in enumerate(self.nodes):
+			new_connections=[0 for _ in range(N)]
+			emptyconnections=[]
+			for (edgeindex, edge) in enumerate(node.connections):
+				if edge==0 and edgeindex!=index:
+					emptyconnections.append(edgeindex)
+			for (edgeindex, edge) in enumerate(node.connections):		
+				if edge==1:
+					re_wire=random.random()
+					if re_wire<re_wire_prob and len(emptyconnections)>0:
+						new_connection_index=emptyconnections[random.randint(0,len(emptyconnections))-1]
+						while new_connection_index==index:
+							new_connection_index=emptyconnections[random.randint(0,len(emptyconnections))-1]
+						self.nodes[edgeindex].connections[index]=0
+						new_connections[new_connection_index]=1
+						emptyconnections.remove(new_connection_index)
+						self.nodes[new_connection_index].connections[index] = 1
+					else:
+						new_connections[edgeindex]=1
+				else:
+					new_connections[edgeindex]=0
+			node.connections=np.array(new_connections)
 		  
 	def plot(self):
 		"""function to plot the network"""
