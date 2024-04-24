@@ -434,7 +434,7 @@ def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
     ax.set_ylabel('Opinion')  # Set y-axis label
 
 
-def defaunt_main(population_size, threshold, beta, timestep):
+def defuant_main(population_size, threshold, beta, timestep):
 
     opinions = initialize_opinions(population_size)
 
@@ -480,8 +480,8 @@ def all_flags():
 	parser.add_argument('-threshold', nargs='?', type=float, default=0.2)
 	parser.add_argument('-population_size', nargs='?', type=int, default=100)
 	parser.add_argument('-timestep', nargs='?', type=int, default=100)
-	parser.add_argument('-test_defaunt', action = 'store_true')
-	parser.add_argument('-defaunt', action = 'store_true')
+	parser.add_argument('-test_defuant', action = 'store_true')
+	parser.add_argument('-defuant', action = 'store_true')
 	
 	# add arguments for task 3 
 	parser.add_argument("-test_network", action="store_true")
@@ -497,10 +497,10 @@ def all_flags():
 	threshold = args.threshold
 	population_size = args.population_size
 	timestep = args.timestep
-	if args.defaunt:
-		defaunt_main(population_size, threshold, beta, timestep)
+	if args.defuant:
+		defuant_main(population_size, threshold, beta, timestep)
 	if args.test_defaunt:
-		test_defaunt()
+		test_defuant()
 	if args.test_network:
 		print("testing task 3")
 		# run test function
