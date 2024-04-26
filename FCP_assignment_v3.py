@@ -488,6 +488,9 @@ def all_flags():
 	parser.add_argument("-network", nargs='?', type=int, default=6)
 	
 	# add arguments for task 4
+	parser.add_argument("-ring_network", type=int)
+	parser.add_argument("-small_world", type=int)
+	parser.add_argument("-re_wire", nargs="?", type=float, default=0.2)
 
 	# parse args
 	args = parser.parse_args()
@@ -504,6 +507,15 @@ def all_flags():
 	if args.test_network:
 		print("testing task 3")
 		# run test function
+
+	if args.ring_network:
+		ring__network=Network()
+		ring__network.make_ring_network(args.ring_network)
+		ring__network.plot()
+	if args.small_world:
+		small_world_network=Network()
+		small_world_network.make_small_world_network(args.small_world, args.re_wire)
+		small_world_network.plot()
 	
 	return beta, threshold, population_size, timestep, network_size	
 def main():
