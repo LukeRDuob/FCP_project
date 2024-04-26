@@ -300,12 +300,38 @@ def calculate_agreement(population, row, col, external=0.0):
 	Returns:
 			change_in_agreement (float)
 	'''
+	still_neighbours = True
+	sum = 0
+	while still_neighbours:
+		for i in range(-1,2):
+				x = col + i
+				if x >=0 and x <= (len(population)-1) and x != col:
+					sum += (population[row,col] * population[row,x])
+				if x < 0:
+					sum += (population[row,col] * population[row,len(population)+x])
+				if x > (len(population)-1):
+					sum += (population[row,col] * population[row,x-len(population)])
+		for j in range(-1,2):
+			y = row + j
+			if y >=0 and y <= (len(population)-1) and y != row:
+				sum += (population[row,col] * population[y,col])
+			if y > (len(population)-1):
+				sum += (population[row,col] * population[y-len(population),col])
+			if y < 0:
+				sum += (population[row,col] * population[y+len(population),col])
+		sum += float(external)*population[row, col]
+		still_neighbours = False
+	return sum
 
-	#Your code for task 1 goes here
+def agreement_change(population, row, col, external):
+	initial_agreement = calculate_agreement(population,row, col, external)
+	population[row, col] = -1 * population[row, col]
+	new_agreement = calculate_agreement(population,row, col, external)
+	change = new_agreement - initial_agreement
+	return change
 
-	return np.random.random() * population
 
-def ising_step(population, external=0.0):
+def ising_step(population, alpha, external=0.0):
 	'''
 	This function will perform a single update of the Ising model
 	Inputs: population (numpy array)
@@ -315,9 +341,11 @@ def ising_step(population, external=0.0):
 	n_rows, n_cols = population.shape
 	row = np.random.randint(0, n_rows)
 	col  = np.random.randint(0, n_cols)
+	agreement = calculate_agreement(population, row, col, external)
+	prob = np.exp(-agreement/float(alpha))
 
-	agreement = calculate_agreement(population, row, col, external=0.0)
-
+	if agreement > 0 and (random.uniform(0,1) < prob):
+		population[row, col] *= -1
 	if agreement < 0:
 		population[row, col] *= -1
 
@@ -327,7 +355,6 @@ def plot_ising(im, population):
 	'''
 	This function will display a plot of the Ising model
 	'''
-
 	new_im = np.array([[255 if val == -1 else 1 for val in rows] for rows in population], dtype=np.int8)
 	im.set_data(new_im)
 	plt.pause(0.1)
@@ -336,51 +363,88 @@ def test_ising():
 	'''
 	This function will test the calculate_agreement function in the Ising model
 	'''
-
-	print("Testing ising model calculations")
+	print("Testing ising model calculation")
+	
 	population = -np.ones((3, 3))
+	
 	assert(calculate_agreement(population,1,1)==4), "Test 1"
-
+	
 	population[1, 1] = 1.
+	
 	assert(calculate_agreement(population,1,1)==-4), "Test 2"
-
+	
 	population[0, 1] = 1.
+	
 	assert(calculate_agreement(population,1,1)==-2), "Test 3"
-
+	
 	population[1, 0] = 1.
+	
 	assert(calculate_agreement(population,1,1)==0), "Test 4"
-
+	
 	population[2, 1] = 1.
+	
 	assert(calculate_agreement(population,1,1)==2), "Test 5"
-
+	
 	population[1, 2] = 1.
+	
 	assert(calculate_agreement(population,1,1)==4), "Test 6"
-
 	"Testing external pull"
 	population = -np.ones((3, 3))
 	assert(calculate_agreement(population,1,1,1)==3), "Test 7"
 	assert(calculate_agreement(population,1,1,-1)==5), "Test 8"
-	assert(calculate_agreement(population,1,1,10)==-6), "Test 9"
-	assert(calculate_agreement(population,1,1, -10)==14), "Test 10"
-		
+	assert(calculate_agreement(population,1,1,-10)==14), "Test 9"
+	assert(calculate_agreement(population,1,1,10)==-6), "Test 10"
 	print("Tests passed")
 
+def createranline(length):
+	temp = []
+	for i in range(length):
+		ran = random.uniform(0,1)
+		if ran > 0.5:
+			temp.append(1)
+		else:
+			temp.append(-1)
+	return temp
 
-def ising_main(population, alpha=None, external=0.0):
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_axis_off()
-    im = ax.imshow(population, interpolation='none', cmap='RdPu_r')
+def createpop(length):
+	pop = []
+	for j in range(length):
+		pop.append(createranline(length))
+	return pop
 
+
+
+def ising_main(population=np.array(createpop(100)), alpha=1, external=0.0):
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	ax.set_axis_off()
+	im = ax.imshow(population, interpolation='none', cmap='RdPu_r')
+	parser = argparse.ArgumentParser(description = 'IsingModel')
+	parser.add_argument("-ising_model", action = 'store_true')
+	parser.add_argument("-external", nargs='?', default=0)
+	parser.add_argument("-alpha", nargs='?', default=1)
+	parser.add_argument("-test_ising", action = 'store_true')
+	args = parser.parse_args()
+	show_ising_model = args.ising_model
+	show_test_ising = args.test_ising
     # Iterating an update 100 times
-    for frame in range(100):
-        # Iterating single steps 1000 times to form an update
-        for step in range(1000):
-            ising_step(population, external)
-        print('Step:', frame, end='\r')
-        plot_ising(im, population)
+	alpha = args.alpha
+	external = args.external
+	if show_ising_model:
+		for frame in range(100):
+			# Iterating single steps 1000 times to form an update
+			for step in range(1000):
+				ising_step(population, alpha, external)
+			print('Step:', frame, end='\r')
+			plot_ising(im, population)
 
+	if show_test_ising:
+		test_ising()
+		
+if __name__ == "__main__":
+	import sys
+	args = sys.argv[1:]
+	ising_main()
 
 '''
 ==============================================================================================================
