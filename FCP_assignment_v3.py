@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import argparse
 import random
+import sys
+
 
 # create class for Queue (used in Breadth-first search)
 class Queue:
@@ -174,7 +176,6 @@ class Network:
 			for i in range(1,neighbour_range+1):
 				node.connections[(index+i)%N]=1
 				node.connections[(index-i)%N]=1
-		print("")
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
 		connectionmatrix=[]
@@ -201,7 +202,8 @@ class Network:
 				else:
 					new_connections[edgeindex]=0
 			node.connections=np.array(new_connections)
-		  
+
+
 	def plot(self):
 		"""function to plot the network"""
 		# create figure
@@ -414,16 +416,19 @@ def createpop(length):
 
 
 
-def ising_main(population=np.array(createpop(100)), alpha=1, external=0.0):
+def ising_main():
+	
+	population=np.array(createpop(100))
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	ax.set_axis_off()
 	im = ax.imshow(population, interpolation='none', cmap='RdPu_r')
 	parser = argparse.ArgumentParser(description = 'IsingModel')
-	parser.add_argument("-ising_model", action = 'store_true')
+	parser.add_argument("-ising_model", action="store_true")
 	parser.add_argument("-external", nargs='?', default=0)
 	parser.add_argument("-alpha", nargs='?', default=1)
 	parser.add_argument("-test_ising", action = 'store_true')
+	
 	args = parser.parse_args()
 	show_ising_model = args.ising_model
 	show_test_ising = args.test_ising
@@ -441,10 +446,9 @@ def ising_main(population=np.array(createpop(100)), alpha=1, external=0.0):
 	if show_test_ising:
 		test_ising()
 		
-if __name__ == "__main__":
-	import sys
-	args = sys.argv[1:]
-	ising_main()
+#if __name__ == "__main__":
+#	args = sys.argv[1:]
+#	ising_main()
 
 '''
 ==============================================================================================================
@@ -458,27 +462,27 @@ def initialize_opinions(population_size):
 
 def update_opinions(opinions, threshold, beta):
 
-    # Randomly select an individual
-    rand_ind = random.randint(0, len(opinions)-1)
-    individual_opinion = opinions[rand_ind]
-    
-    # Randomly select one of its neighbors
-    neighbor_rand_ind = random.choice([rand_ind-1, rand_ind+1])
-    
-    # Ensure boundary conditions
-    neighbor_rand_ind = max(0, min(len(opinions)-1, neighbor_rand_ind))
-    
-    neighbor_opinion = opinions[neighbor_rand_ind]
-    
-    # Calculate difference of opinions
-    diff = abs(individual_opinion - neighbor_opinion)
+	# Randomly select an individual
+	rand_ind = random.randint(0, len(opinions)-1)
+	individual_opinion = opinions[rand_ind]
 
-    # Update opinions if within threshold
-    if diff < threshold:
-        opinions[rand_ind] = opinions[rand_ind] + beta * (neighbor_opinion - individual_opinion)
-        opinions[neighbor_rand_ind] = opinions[neighbor_rand_ind] + beta * (individual_opinion - neighbor_opinion)
+	# Randomly select one of its neighbors
+	neighbor_rand_ind = random.choice([rand_ind-1, rand_ind+1])
 
-    return opinions
+	# Ensure boundary conditions
+	neighbor_rand_ind = max(0, min(len(opinions)-1, neighbor_rand_ind))
+
+	neighbor_opinion = opinions[neighbor_rand_ind]
+
+	# Calculate difference of opinions
+	diff = abs(individual_opinion - neighbor_opinion)
+
+	# Update opinions if within threshold
+	if diff < threshold:
+		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbor_opinion - individual_opinion)
+		opinions[neighbor_rand_ind] = opinions[neighbor_rand_ind] + beta * (individual_opinion - neighbor_opinion)
+
+	return opinions
 
 def plot_opinions_hist(opinions, timestep, ax):
 
@@ -496,33 +500,60 @@ def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
     ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
     ax.set_xlabel('Timestep')  # Set x-axis label
     ax.set_ylabel('Opinion')  # Set y-axis label
+	
+def update_opinions_network(opinions, threshold, beta, network):
+	# Randomly select an individual
+	rand_ind = random.randint(0, len(opinions)-1)
+	rand_node = network.nodes[rand_ind]
+	individual_opinion = rand_node.value
+
+	# Randomly select one of its neighbors
+	neighbor_rand_ind = random.randint(0, len(rand_node.get_neighbours())-1)
+	# get neighbour opinion	
+	neighbor_opinion = opinions[neighbor_rand_ind]
+
+	# Calculate difference of opinions
+	diff = abs(individual_opinion - neighbor_opinion)
+
+	# Update opinions if within threshold
+	if diff < threshold:
+		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbor_opinion - individual_opinion)
+		opinions[neighbor_rand_ind] = opinions[neighbor_rand_ind] + beta * (individual_opinion - neighbor_opinion)
+
+	return opinions
+
+def defuant_main(population_size, network, threshold, beta, timestep):
+	# check if network should be used
+	if network == None:
+		opinions = initialize_opinions(population_size)
+	else:
+		opinions = [node.value for node in network.nodes]	
 
 
-def defuant_main(population_size, threshold, beta, timestep):
+	fig, (ax1, ax2) = plt.subplots(1, 2)
+	# Uncomment to see animation
+	#plt.ion()
+	for t in range(timestep):
+		
+		plot_opinions_hist(opinions, t+1, ax1)
+		plot_opinions_scatter(opinions, t+1, ax2, beta, threshold)
+		for step in range(timestep):
+			if network==None:
+				update_opinions(opinions, threshold, beta)
+			else:
+				update_opinions_network(opinions, threshold, beta, network)	
 
-    opinions = initialize_opinions(population_size)
+		#plt.draw()
+		#plt.pause(0.01)
+		if t != timestep-1:
+			ax1.clear()
 
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    ''' Uncomment to see animation'''
-    #plt.ion()
-    for t in range(timestep):
-        
-        plot_opinions_hist(opinions, t+1, ax1)
-        plot_opinions_scatter(opinions, t+1, ax2, beta, threshold)
-        for step in range(timestep):
-            update_opinions(opinions, threshold, beta)
-
-        #plt.draw()
-        #plt.pause(0.01)
-        if t != timestep-1:
-            ax1.clear()
-
-    #plt.ioff()
-    plt.show()
+	#plt.ioff()
+	plt.show()
 
 def test_defuant():
 	#Your code for task 2 goes here
-	print("")
+	print("testing defuant model")
 
 
 '''
@@ -537,8 +568,9 @@ def all_flags():
 	# create parser to access arguments from the terminal
 	parser = argparse.ArgumentParser(description='Opinion dynamics')
 
-	# add arguments for task 1
-
+	# add argument for task 1
+	parser.add_argument("-ising_model", action = 'store_true')
+	
 	# add arguments for task 2
 	parser.add_argument('-beta', nargs='?', type=float, default=0.2)
 	parser.add_argument('-threshold', nargs='?', type=float, default=0.2)
@@ -549,13 +581,15 @@ def all_flags():
 	
 	# add arguments for task 3 
 	parser.add_argument("-test_network", action="store_true")
-	parser.add_argument("-network", nargs='?', type=int, default=6)
+	parser.add_argument("-network", nargs='?', type=int, default=None)
 	
 	# add arguments for task 4
 	parser.add_argument("-ring_network", type=int)
 	parser.add_argument("-small_world", type=int)
 	parser.add_argument("-re_wire", nargs="?", type=float, default=0.2)
 
+	# add arguements for task 5
+	parser.add_argument("-use_network", nargs="?", type=int, default=None)
 	# parse args
 	args = parser.parse_args()
 
@@ -564,35 +598,49 @@ def all_flags():
 	threshold = args.threshold
 	population_size = args.population_size
 	timestep = args.timestep
+
+
+	if args.network:
+		# create network of size 10
+		network = Network()
+		network.make_random_network(args.network, 0.5)
+		network.plot()
+		# display relevant information
+		print("Mean degree:", network.get_mean_degree())
+		print("Average path length:", network.get_mean_path_length())
+		print("mean clustering coefficient", network.get_mean_clustering())
+
+	if args.ising_model:
+			ising_main()
 	if args.defuant:
-		defuant_main(population_size, threshold, beta, timestep)
-	if args.test_defaunt:
+		#check if network should be used
+		if args.use_network == None:
+			# run defuant model with grid
+			defuant_main(population_size, None, threshold, beta, timestep)
+		else:
+			small_world_network = Network()
+			small_world_network.make_small_world_network(args.use_network, 0.2)
+			small_world_network.plot()
+			# run defuant model
+			defuant_main(population_size, small_world_network, threshold, beta, timestep)
+	if args.test_defuant:
 		test_defuant()
 	if args.test_network:
 		print("testing task 3")
-		# run test function
-
+		test_networks()
 	if args.ring_network:
-		ring__network=Network()
+		ring__network = Network()
 		ring__network.make_ring_network(args.ring_network)
 		ring__network.plot()
 	if args.small_world:
-		small_world_network=Network()
+		small_world_network = Network()
 		small_world_network.make_small_world_network(args.small_world, args.re_wire)
 		small_world_network.plot()
-	
-	return beta, threshold, population_size, timestep, network_size	
+
+
 def main():
-	beta, threshold, population_size, timestep, node_number = all_flags()
+	all_flags()
 	
-	network = Network()
-	network.make_random_network(node_number, 0.6)
-	network.plot()
-	
-	
-	print("Mean degree:", network.get_mean_degree())
-	print("Average path length:", network.get_mean_path_length())
-	print("mean clustering coefficient", network.get_mean_clustering())
 
 if __name__=="__main__":
 	main()
