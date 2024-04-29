@@ -480,9 +480,9 @@ def update_opinions(opinions, threshold, beta):
 	
 	# Update opinions if within threshold
 	if diff < threshold:
-	opinions[rand_ind] = opinions[rand_ind] + beta * (neighbour_opinion - individual_opinion)
-	opinions[neighbour_rand_ind] = opinions[neighbour_rand_ind] + beta * (individual_opinion - neighbour_opinion)
-	
+		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbour_opinion - individual_opinion)
+		opinions[neighbour_rand_ind] = opinions[neighbour_rand_ind] + beta * (individual_opinion - neighbour_opinion)
+		
 	return opinions
 
 def plot_opinions_hist(opinions, timestep, ax):
