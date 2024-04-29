@@ -461,65 +461,71 @@ def initialize_opinions(population_size):
     return np.random.rand(population_size)
 
 def update_opinions(opinions, threshold, beta):
-
-	# Randomly select an individual
+	
+	# Randomly select an individual from the population
 	rand_ind = random.randint(0, len(opinions)-1)
+	
+	# Set individual's opinion to a number
 	individual_opinion = opinions[rand_ind]
-
-	# Randomly select one of its neighbors
-	neighbor_rand_ind = random.choice([rand_ind-1, rand_ind+1])
-
-	# Ensure boundary conditions
-	neighbor_rand_ind = max(0, min(len(opinions)-1, neighbor_rand_ind))
-
-	neighbor_opinion = opinions[neighbor_rand_ind]
-
+	
+	# Randomly select one of the indiviudual's neighbours and loop list so that first and last
+	# in the list are considered neighbours using modulo function
+	neighbour_rand_ind = random.choice([rand_ind-1, rand_ind+1])%len(opinions)
+	
+	# Set neighbour's opinion to a number
+	neighbour_opinion = opinions[neighbour_rand_ind]
+	
 	# Calculate difference of opinions
-	diff = abs(individual_opinion - neighbor_opinion)
-
+	diff = abs(individual_opinion - neighbour_opinion)
+	
 	# Update opinions if within threshold
 	if diff < threshold:
-		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbor_opinion - individual_opinion)
-		opinions[neighbor_rand_ind] = opinions[neighbor_rand_ind] + beta * (individual_opinion - neighbor_opinion)
-
+	opinions[rand_ind] = opinions[rand_ind] + beta * (neighbour_opinion - individual_opinion)
+	opinions[neighbour_rand_ind] = opinions[neighbour_rand_ind] + beta * (individual_opinion - neighbour_opinion)
+	
 	return opinions
 
 def plot_opinions_hist(opinions, timestep, ax):
-
-    bins= [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-    ax.hist(opinions, bins=bins)
-    ax.set_title(f'Timestep = {timestep}')
-    ax.set_xlabel('Opinion')  # Set x-axis label
-    ax.set_ylabel('Frequency')  # Set y-axis label
-
+	
+	# Creates increments for the bars on the x-axis
+	bins= [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+	# Creates histogram
+	ax.hist(opinions, bins=bins)
+	ax.set_title(f'Timestep = {timestep}')
+	ax.set_xlabel('Opinion')  # Set x-axis label
+	ax.set_ylabel('Frequency')  # Set y-axis label
+	
 
 def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
 
-    x_axis = [timestep] * len(opinions)
-    ax.scatter(x_axis, opinions, color = 'red')
-    ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
-    ax.set_xlabel('Timestep')  # Set x-axis label
-    ax.set_ylabel('Opinion')  # Set y-axis label
+	# Create a list of the opinions at every timestep to be able to be plotted against time
+	x_axis = [timestep] * len(opinions)
+	# Creates the desired scatter diagram
+	ax.scatter(x_axis, opinions, color = 'red')
+	ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
+	ax.set_xlabel('Timestep')  # Set x-axis label
+	ax.set_ylabel('Opinion')  # Set y-axis label
 	
 def update_opinions_network(opinions, threshold, beta, network):
+	
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	rand_node = network.nodes[rand_ind]
 	individual_opinion = rand_node.value
-
+	
 	# Randomly select one of its neighbors
 	neighbor_rand_ind = random.randint(0, len(rand_node.get_neighbours())-1)
 	# get neighbour opinion	
 	neighbor_opinion = opinions[neighbor_rand_ind]
-
+	
 	# Calculate difference of opinions
 	diff = abs(individual_opinion - neighbor_opinion)
-
+	
 	# Update opinions if within threshold
 	if diff < threshold:
 		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbor_opinion - individual_opinion)
 		opinions[neighbor_rand_ind] = opinions[neighbor_rand_ind] + beta * (individual_opinion - neighbor_opinion)
-
+	
 	return opinions
 
 def defuant_main(population_size, network, threshold, beta, timestep):
@@ -553,7 +559,14 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 
 def test_defuant():
 	#Your code for task 2 goes here
-	print("testing defuant model")
+	print("Testing defuant model")
+	
+	assert update_opinions([0.45, 0.55], 0.2, 0.2) == [0.47, 0.53]
+	assert update_opinions([0.05, 0.5, 0.95], 0.5, 0.1) == [0.05, 0.5, 0.95]
+	assert update_opinions([0.2, 0.25, 0.3], 0.5, 0.5) == [0.2, 0.275, 0.275] or [0.225, 0.225, 0.3] or [0.25, 0.25, 0.25]
+	assert update_opinions([0.2, 0.25, 0.4], 0.2, 0.2) == [0.21, 0.24, 0.4] or [0.2, 0.25, 0.4] or [0.2, 0.28, 0.37]
+	
+	print('Tests Passed')
 
 
 '''
