@@ -178,8 +178,8 @@ class Network:
 				node.connections[(index-i)%N]=1
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
-		connectionmatrix=[]
-		self.make_ring_network(N, 2)
+		neighbour_range=2
+		self.make_ring_network(N, neighbour_range)
 		for (index, node) in enumerate(self.nodes):
 			new_connections=[0 for _ in range(N)]
 			emptyconnections=[]
