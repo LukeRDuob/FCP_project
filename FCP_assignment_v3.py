@@ -25,6 +25,7 @@ class Queue:
 class Node:
 
 	def __init__(self, value, number, connections=None):
+		"""initialisation of node object"""	
 		self.parent = None
 		self.index = number
 		self.connections = connections
@@ -162,7 +163,7 @@ class Network:
 			route.append(node_to_check)
 			node_to_check = node_to_check.parent
 		route.append(node_to_check)
-        # output route
+        # return route
 		return [node.value for node in route[::-1]]
 
 
@@ -202,14 +203,14 @@ class Network:
 				else:
 					new_connections[edgeindex]=0
 			node.connections=np.array(new_connections)
-
-
-	def plot(self):
+			
+	def plot(self, fig=None, ax=None):
 		"""function to plot the network"""
-		# create figure
-		fig = plt.figure()
-		ax = fig.add_subplot(111)
-		ax.set_axis_off()  # remove axes
+		# create figure if not provided
+		if fig==None:
+			fig = plt.figure()
+			ax = fig.add_subplot(111)
+		ax.set_axis_off()  # remove axes 	
 
 		# create ring to help position the nodes 
 		num_nodes = len(self.nodes)
@@ -236,10 +237,9 @@ class Network:
 					neighbour_y = network_radius * np.sin(neighbour_angle)
 					# draw edge 
 					ax.plot((node_x, neighbour_x), (node_y, neighbour_y), color='black')
-		plt.show()
 
 def test_networks():
-
+	"""Testing ring, one sided and fully connected networks"""
 	#Ring network
 	nodes = []
 	num_nodes = 10
@@ -250,7 +250,6 @@ def test_networks():
 		new_node = Node(0, node_number, connections=connections)
 		nodes.append(new_node)
 	network = Network(nodes)
-
 	print("Testing ring network")
 	assert(network.get_mean_degree()==2), network.get_mean_degree()
 	assert(network.get_mean_clustering()==0), network.get_mean_clustering()
@@ -477,7 +476,12 @@ def update_opinions_network(opinions, threshold, beta, network):
 	individual_opinion = rand_node.value
 
 	# Randomly select one of its neighbors
-	neighbour_rand_ind = random.randint(0, len(rand_node.get_neighbours())-1)
+	number_of_neigbours = len(rand_node.get_neighbours())
+	# avoid case of 1 neighbour
+	if number_of_neigbours > 0:
+		neighbour_rand_ind = random.randint(0, number_of_neigbours-1)
+	else:
+		neighbour_rand_ind = 0
 	# get neighbour
 	neighbour = network.nodes[neighbour_rand_ind]
 	# get neighbour opinion	
@@ -487,49 +491,66 @@ def update_opinions_network(opinions, threshold, beta, network):
 	diff = abs(individual_opinion - neighbour_opinion)
 	# Update opinions if within threshold
 	if diff < threshold:
+		#update opinions list
 		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbour_opinion - individual_opinion)
 		opinions[neighbour_rand_ind] = opinions[neighbour_rand_ind] + beta * (individual_opinion - neighbour_opinion)	
+		# update node values
 		rand_node.value = opinions[rand_ind]
-		neighbour.value = opinions[neighbour_rand_ind]
-		
+		neighbour.value = opinions[neighbour_rand_ind]		
 
 	return opinions
 
 def defuant_main(population_size, network, threshold, beta, timestep):
 	# check if network should be used
 	if network == None:
+		# defuant on a grid
 		opinions = initialize_opinions(population_size)
+		fig, (ax1, ax2) = plt.subplots(1, 2)
+
 	else:
+		# defuant on a network
 		opinions = [node.value for node in network.nodes]	
-
-
-	fig, (ax1, ax2) = plt.subplots(1, 2)
-	# Uncomment to see animation
-	#plt.ion()
+		fig_animation,ax_animation = plt.subplots(1,1)  # fig for network animation
+		ax_animation.set_axis_off()
+		means = [] 	#list of mean opinions
+	plt.ion()
 	for t in range(timestep):
 		
-		plot_opinions_hist(opinions, t+1, ax1)
-		plot_opinions_scatter(opinions, t+1, ax2, beta, threshold)
+		if network == None:
+			plot_opinions_hist(opinions, t+1, ax1)
+			plot_opinions_scatter(opinions, t+1, ax2, beta, threshold)
+		else:
+			network.plot(fig_animation, ax_animation)
+			fig_animation.canvas.draw()
+			plt.pause(0.05)
+
+			#get mean opinion
+			means.append(get_mean_op(opinions))
 		for step in range(timestep):
 			if network==None:
 				update_opinions(opinions, threshold, beta)
 			else:
 				update_opinions_network(opinions, threshold, beta, network)	
-
-		#plt.draw()
-		#plt.pause(0.01)
 		if t != timestep-1:
-			ax1.clear()
-
-	#plt.ioff()
- 
-
+			if network == None:
+				ax1.clear()
+			else:
+				ax_animation.clear()
+	plt.ioff()
+	if network != None:
+		mean_fig, mean_ax = plt.subplots(1,1)  # fig for mean opinions
+		time = [t for t in range(timestep)]
+		mean_ax.plot(time, means)
 	plt.show()
 
 def test_defuant():
 	#Your code for task 2 goes here
 	print("testing defuant model")
 
+def get_mean_op(opinions):
+	"""plotting mean opinions"""
+	mean = sum(opinions) / len(opinions)
+	return mean
 
 '''
 ==============================================================================================================
@@ -605,6 +626,7 @@ def all_flags():
 		network = Network()
 		network.make_random_network(args.network, connection_probability=0.5)
 		network.plot()
+		plt.show()
 		# display relevant information
 		print("Mean degree:", network.get_mean_degree())
 		print("Average path length:", network.get_mean_path_length())
@@ -621,6 +643,7 @@ def all_flags():
 			small_world_network = Network()
 			small_world_network.make_small_world_network(args.use_network, 0.2)
 			small_world_network.plot()
+			plt.show()
 			# run defuant model
 			defuant_main(population_size, small_world_network, threshold, beta, timestep)
 	if args.test_defuant:
@@ -631,10 +654,12 @@ def all_flags():
 		ring__network = Network()
 		ring__network.make_ring_network(args.ring_network)
 		ring__network.plot()
+		plt.show()
 	if args.small_world:
 		small_world_network = Network()
 		small_world_network.make_small_world_network(args.small_world, args.re_wire)
 		small_world_network.plot()
+		plt.show()
 
 
 def main():
