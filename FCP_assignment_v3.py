@@ -168,39 +168,37 @@ class Network:
 
 	def make_ring_network(self, N, neighbour_range=1):
 		self.nodes=[]
+		#Create empty network first like before
 		for node_number in range(N):
 			value = np.random.random()
 			connections = [0 for _ in range(N)]
 			self.nodes.append(Node(value, node_number, connections))
-		for (index, node) in enumerate(self.nodes):
-			for i in range(1,neighbour_range+1):
-				node.connections[(index+i)%N]=1
-				node.connections[(index-i)%N]=1
+		for (index, node) in enumerate(self.nodes):# Gives every node with their index
+			for i in range(1,neighbour_range+1): # loops from 1 to the the neighbour range to find the chosen neighbours
+				node.connections[(index+i)%N]=1 
+				node.connections[(index-i)%N]=1 # Sets the neighbours either side of it to 1
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
-		neighbour_range=2
-		self.make_ring_network(N, neighbour_range)
-		for (index, node) in enumerate(self.nodes):
-			new_connections=[0 for _ in range(N)]
+		neighbour_range=2 
+		self.make_ring_network(N, neighbour_range) # Start with ring network with neighbour range 2
+		for (index, node) in enumerate(self.nodes): # loops through every node to find every connection
+			new_connections=[0 for _ in range(N)] # Create an empty list of zeros for the new set of connections
 			emptyconnections=[]
-			for (edgeindex, edge) in enumerate(node.connections):
-				if edge==0 and edgeindex!=index:
-					emptyconnections.append(edgeindex)
-			for (edgeindex, edge) in enumerate(node.connections):		
-				if edge==1:
-					re_wire=random.random()
-					if re_wire<re_wire_prob and len(emptyconnections)>0:
-						new_connection_index=emptyconnections[random.randint(0,len(emptyconnections))-1]
-						while new_connection_index==index:
-							new_connection_index=emptyconnections[random.randint(0,len(emptyconnections))-1]
-						self.nodes[edgeindex].connections[index]=0
-						new_connections[new_connection_index]=1
-						emptyconnections.remove(new_connection_index)
-						self.nodes[new_connection_index].connections[index] = 1
+			for (edgeindex, edge) in enumerate(node.connections): 
+				if edge==0 and edgeindex!=index: # Finds every empty connection to the the current node that isn't itself
+					emptyconnections.append(edgeindex) # appends to empty connections
+			for (edgeindex, edge) in enumerate(node.connections): #loops through every connection again	
+				if edge==1: # Finds active connections 
+					re_wire=random.random() 
+					if re_wire<re_wire_prob and len(emptyconnections)>0: #If there are empty connections and the probability is enough
+						new_connection_index=emptyconnections[random.randint(0,len(emptyconnections))-1] # selects random empty connection
+						self.nodes[edgeindex].connections[index]=0 # Sets the connection on the other node to 0
+						new_connections[new_connection_index]=1 # Adds the connection to the new connection list 
+						emptyconnections.remove(new_connection_index) # There is now a connection so remover from empty connections 
+						emptyconnections.append(edgeindex) # Adds the now empty connection to empty connections
+						self.nodes[new_connection_index].connections[index] = 1 # Adds the new connection to the other node
 					else:
-						new_connections[edgeindex]=1
-				else:
-					new_connections[edgeindex]=0
+						new_connections[edgeindex]= 1 # Nothing is altered so current connection re-added
 			node.connections=np.array(new_connections)
 
 
