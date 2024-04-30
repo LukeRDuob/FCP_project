@@ -324,6 +324,7 @@ def calculate_agreement(population, row, col, external=0.0):
 	return sum
 
 def agreement_change(population, row, col, external):
+	'''This function returns change in the agreement between its neighbours if an opinion is flipped. Agreement after flip - Agreement before flip = Change in Agreement'''
 	initial_agreement = calculate_agreement(population,row, col, external)
 	population[row, col] = -1 * population[row, col]
 	new_agreement = calculate_agreement(population,row, col, external)
@@ -397,6 +398,7 @@ def test_ising():
 	print("Tests passed")
 
 def createranline(length):
+	'''This function returns a random line sequence of -1's and 1's of a particular length'''
 	temp = []
 	for i in range(length):
 		ran = random.uniform(0,1)
@@ -407,6 +409,7 @@ def createranline(length):
 	return temp
 
 def createpop(length):
+	'''This function returns a square grid of a particular size'''
 	pop = []
 	for j in range(length):
 		pop.append(createranline(length))
