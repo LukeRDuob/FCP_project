@@ -433,23 +433,28 @@ def update_opinions(opinions, threshold, beta):
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	individual_opinion = opinions[rand_ind]
+	neighbour_found = False
+	# loop to ensure the original invidual isn't selected
+	while not neighbour_found:
+		# Randomly select one of its neighbors
+		neighbour_rand_ind = random.choice([rand_ind-1, rand_ind+1])
+		# Ensure boundary conditions
+		neighbour_rand_ind = max(0, min(len(opinions)-1, neighbour_rand_ind))
+		# break if neighbour is not the original individual
+		if neighbour_rand_ind != rand_ind:
+			neighbour_found == True
+			break	
 
-	# Randomly select one of its neighbors
-	neighbor_rand_ind = random.choice([rand_ind-1, rand_ind+1])
-
-	# Ensure boundary conditions
-	neighbor_rand_ind = max(0, min(len(opinions)-1, neighbor_rand_ind))
-
-	neighbor_opinion = opinions[neighbor_rand_ind]
-
+	neighbour_opinion = opinions[neighbour_rand_ind]
 	# Calculate difference of opinions
-	diff = abs(individual_opinion - neighbor_opinion)
-
+	diff = abs(individual_opinion - neighbour_opinion)
 	# Update opinions if within threshold
 	if diff < threshold:
-		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbor_opinion - individual_opinion)
-		opinions[neighbor_rand_ind] = opinions[neighbor_rand_ind] + beta * (individual_opinion - neighbor_opinion)
-
+		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbour_opinion - individual_opinion)
+		opinions[neighbour_rand_ind] = opinions[neighbour_rand_ind] + beta * (individual_opinion - neighbour_opinion)
+		# round values to avoid floating point errors
+		opinions[rand_ind] = round(opinions[rand_ind],5)
+		opinions[neighbour_rand_ind] = round(opinions[neighbour_rand_ind],5)
 	return opinions
 
 def plot_opinions_hist(opinions, timestep, ax):
@@ -494,6 +499,9 @@ def update_opinions_network(opinions, threshold, beta, network):
 		#update opinions list
 		opinions[rand_ind] = opinions[rand_ind] + beta * (neighbour_opinion - individual_opinion)
 		opinions[neighbour_rand_ind] = opinions[neighbour_rand_ind] + beta * (individual_opinion - neighbour_opinion)	
+				# round values to avoid floating point errors
+		opinions[rand_ind] = round(opinions[rand_ind], 5)
+		opinions[neighbour_rand_ind] = round(opinions[neighbour_rand_ind], 5)
 		# update node values
 		rand_node.value = opinions[rand_ind]
 		neighbour.value = opinions[neighbour_rand_ind]		
@@ -545,7 +553,14 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 
 def test_defuant():
 	#Your code for task 2 goes here
-	print("testing defuant model")
+	print("Testing defuant model")
+
+	assert update_opinions([0.45, 0.55], 0.2, 0.2) == [0.47, 0.53], "defuant 1"
+	assert update_opinions([0.05, 0.5, 0.95], 0.5, 0.1) == [0.05, 0.5, 0.95] or [0.095, 0.455, 0.95], "defuant 2"
+	assert update_opinions([0.2, 0.25, 0.3], 0.5, 0.5) == [0.2, 0.275, 0.275] or [0.225, 0.225, 0.3] or [0.25, 0.25, 0.25], "defuant 3"
+	assert update_opinions([0.2, 0.25, 0.4], 0.2, 0.2) == [0.21, 0.24, 0.4] or [0.2, 0.25, 0.4] or [0.2, 0.28, 0.37], "defuant 4"
+
+	print('Tests Passed')
 
 def get_mean_op(opinions):
 	"""plotting mean opinions"""
