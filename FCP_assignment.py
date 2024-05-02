@@ -167,6 +167,7 @@ class Network:
 
 
 	def make_ring_network(self, N, neighbour_range=1):
+		"""generate ring network"""
 		self.nodes=[]
 		#Create empty network first like before
 		for node_number in range(N):
@@ -179,6 +180,7 @@ class Network:
 				node.connections[(index-i)%N]=1 # Sets the neighbours either side of it to 1
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
+		"""generate small world network by re-wiring a standard ring network"""
 		neighbour_range=2 
 		self.make_ring_network(N, neighbour_range) # Start with ring network with neighbour range 2
 		for (index, node) in enumerate(self.nodes): # loops through every node to find every connection
@@ -302,7 +304,9 @@ def calculate_agreement(population, row, col, external=0.0):
 	'''
 	still_neighbours = True
 	sum = 0
+	# while not all neighbours visited
 	while still_neighbours:
+		# visits neighbours to the left and right
 		for i in range(-1,2):
 				x = col + i
 				if x >=0 and x <= (len(population)-1) and x != col:
@@ -311,7 +315,9 @@ def calculate_agreement(population, row, col, external=0.0):
 					sum += (population[row,col] * population[row,len(population)+x])
 				if x > (len(population)-1):
 					sum += (population[row,col] * population[row,x-len(population)])
+		# visits neighbours above and below
 		for j in range(-1,2):
+			# y is the row of the neighbours
 			y = row + j
 			if y >=0 and y <= (len(population)-1) and y != row:
 				sum += (population[row,col] * population[y,col])
@@ -323,23 +329,13 @@ def calculate_agreement(population, row, col, external=0.0):
 		still_neighbours = False
 	return sum
 
-def agreement_change(population, row, col, external):
-	'''This function returns change in the agreement between its neighbours if an opinion is flipped.
-	  Agreement after flip - Agreement before flip = Change in Agreement'''
-	initial_agreement = calculate_agreement(population,row, col, external)
-	population[row, col] = -1 * population[row, col]
-	new_agreement = calculate_agreement(population,row, col, external)
-	change = new_agreement - initial_agreement
-	return change
-
-
 def ising_step(population, alpha, external=0.0):
 	'''
 	This function will perform a single update of the Ising model
 	Inputs: population (numpy array)
 			external (float) - optional - the magnitude of any external "pull" on opinion
 	'''
-	
+	# define variables for row and column
 	n_rows, n_cols = population.shape
 	row = np.random.randint(0, n_rows)
 	col  = np.random.randint(0, n_cols)
@@ -347,9 +343,9 @@ def ising_step(population, alpha, external=0.0):
 	prob = np.exp(-agreement/float(alpha))
 
 	if agreement > 0 and (random.uniform(0,1) < prob):
-		population[row, col] *= -1
+		population[row, col] *= -1  # flip occurs if agreement is > 0 under a certain prob
 	if agreement < 0:
-		population[row, col] *= -1
+		population[row, col] *= -1  # flip always occurs if agreement < 0  
 
 	#Your code for task 1 goes here
 
@@ -517,12 +513,16 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 		# defuant on a grid
 		opinions = initialize_opinions(population_size)
 		fig, (ax1, ax2) = plt.subplots(1, 2)
+		
 	else:
 		# defuant on a network
 		opinions = [node.value for node in network.nodes]	
 		fig_animation,ax_animation = plt.subplots(1,1)  # fig for network animation
 		ax_animation.set_axis_off()
 		means = [] 	#list of mean opinions
+		# set beta and threshold values to better visualise the change in opinions
+		beta = 0.5
+		threshold = 0.2
 
 	plt.ion()
 	for t in range(timestep):
@@ -535,7 +535,7 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 			# plot the network if it exists
 			network.plot(fig_animation, ax_animation)
 			fig_animation.canvas.draw()
-			plt.pause(0.01)
+			plt.pause(0.05)
 
 			#get mean opinion
 			means.append(get_mean_op(opinions))
