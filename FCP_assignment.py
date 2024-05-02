@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import argparse
 import random
+import sys
 
 
 # create class for Queue (used in Breadth-first search)
@@ -24,14 +25,18 @@ class Queue:
 class Node:
 
 	def __init__(self, value, number, connections=None):
-		"""initialisation of node object"""	
+		"""
+		Initialisation of node object.
+		"""	
 		self.parent = None
 		self.index = number
 		self.connections = connections
 		self.value = value
 
 	def get_neighbours(self):
-		'''returns the neighbouring nodes to the current node as an array'''
+		'''
+		Returns the neighbouring nodes to the current node as an array.
+		'''
 		return np.where(np.array(self.connections)==1)[0] #  only contains indexes of nodes that are connected		
 
 class Network: 
@@ -44,7 +49,9 @@ class Network:
 			self.nodes = nodes 
 
 	def get_mean_degree(self):
-		"""funtion to find mean degree of all nodes in the network"""
+		"""
+		A funtion to find mean degree of all nodes in the network.
+		"""
 		total_degree = 0
 		# sum all degrees together
 		for node in self.nodes:
@@ -53,7 +60,9 @@ class Network:
 		return total_degree / len(self.nodes)
 	
 	def get_mean_clustering(self):
-		"""returns the mean clustering coefficient for the network as a float"""
+		"""
+		Returns the mean clustering coefficient for the network as a float.
+		"""
 		sum_coef = 0  # sum of coefficients
 		for node in self.nodes:
 			sum_coef += self.cluster_coef(node)
@@ -62,7 +71,9 @@ class Network:
 		return mean_cluster_coef
 
 	def get_mean_path_length(self):
-		"""function that finds the mean path length for all nodes in the network"""
+		"""
+		A function that finds the mean path length for all nodes in the network.
+		"""
 		total = 0
 		for node in self.nodes:
 			total += self.mean_path_length(node)    
@@ -94,7 +105,9 @@ class Network:
 					self.nodes[neighbour_index].connections[index] = 1	
 
 	def mean_path_length(self, start):
-		'''returns the mean path length for a given node'''
+		'''
+		Returns the mean path length for a given node.
+		'''
 		total_path_length = 0
 		node_count = 0
 		# loop through all nodes and sum the path lengths from the original node 
@@ -104,11 +117,15 @@ class Network:
 		return total_path_length / (node_count - 1)		
 
 	def get_possible_connections(self, n):
-		'''returns the number of possible connections for a given number of neighbours'''
+		'''
+		Returns the number of possible connections for a given number of neighbours.
+		'''
 		return n * (n - 1)/2
 
 	def cluster_coef(self, node):
-		'''returns the clustering coefficient for a node'''
+		'''
+		Returns the clustering coefficient for a node.
+		'''
 
 		#find neighbours and 
 		neighbours = node.get_neighbours()
@@ -134,7 +151,9 @@ class Network:
 		return coef
 	
 	def breadth_first_search(self, goal, start_node):
-		"""returns the shortest route for a given start and end node"""
+		"""
+		Returns the shortest route for a given start and end node.
+		"""
         # create search queue to keep track of the route
 		search_queue = Queue()
 		search_queue.push(start_node)
@@ -167,7 +186,9 @@ class Network:
 
 
 	def make_ring_network(self, N, neighbour_range=1):
-		"""generate ring network"""
+		'''
+		Generates ring network.
+		'''
 		self.nodes=[]
 		#Create empty network first like before
 		for node_number in range(N):
@@ -180,7 +201,9 @@ class Network:
 				node.connections[(index-i)%N]=1 # Sets the neighbours either side of it to 1
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
-		"""generate small world network by re-wiring a standard ring network"""
+		"""
+		Generates a small world network by re-wiring a standard ring network.
+		"""
 		neighbour_range=2 
 		self.make_ring_network(N, neighbour_range) # Start with ring network with neighbour range 2
 		for (index, node) in enumerate(self.nodes): # loops through every node to find every connection
@@ -206,7 +229,9 @@ class Network:
 			node.connections=np.array(new_connections)
 			
 	def plot(self, fig=None, ax=None):
-		"""function to plot the network"""
+		"""
+		Function to plot the network.
+		"""
 		# create figure if not provided
 		if fig==None:
 			fig = plt.figure()
@@ -240,7 +265,9 @@ class Network:
 					ax.plot((node_x, neighbour_x), (node_y, neighbour_y), color='black')
 
 def test_networks():
-	"""Testing ring, one sided and fully connected networks"""
+	"""
+	Testing ring, one sided and fully connected networks.
+	"""
 	#Ring network
 	nodes = []
 	num_nodes = 10
@@ -306,7 +333,7 @@ def calculate_agreement(population, row, col, external=0.0):
 	sum = 0
 	# while not all neighbours visited
 	while still_neighbours:
-		# visits neighbours to the left and right
+		# visits neighbours to the left and righ
 		for i in range(-1,2):
 				x = col + i
 				if x >=0 and x <= (len(population)-1) and x != col:
@@ -317,8 +344,8 @@ def calculate_agreement(population, row, col, external=0.0):
 					sum += (population[row,col] * population[row,x-len(population)])
 		# visits neighbours above and below
 		for j in range(-1,2):
+			y = row + 
 			# y is the row of the neighbours
-			y = row + j
 			if y >=0 and y <= (len(population)-1) and y != row:
 				sum += (population[row,col] * population[y,col])
 			if y > (len(population)-1):
@@ -335,7 +362,7 @@ def ising_step(population, alpha, external=0.0):
 	Inputs: population (numpy array)
 			external (float) - optional - the magnitude of any external "pull" on opinion
 	'''
-	# define variables for row and column
+	# define variable for row and column
 	n_rows, n_cols = population.shape
 	row = np.random.randint(0, n_rows)
 	col  = np.random.randint(0, n_cols)
@@ -343,15 +370,14 @@ def ising_step(population, alpha, external=0.0):
 	prob = np.exp(-agreement/float(alpha))
 
 	if agreement > 0 and (random.uniform(0,1) < prob):
-		population[row, col] *= -1  # flip occurs if agreement is > 0 under a certain prob
+		population[row, col] *= -1 # flip occurs if agreement is > 0 under a certain prob
 	if agreement < 0:
-		population[row, col] *= -1  # flip always occurs if agreement < 0  
+		population[row, col] *= -1 # flip always occurs if agreement < 0  
 
-	#Your code for task 1 goes here
 
 def plot_ising(im, population):
 	'''
-	This function will display a plot of the Ising model
+	This function will display a plot of the Ising model.
 	'''
 	new_im = np.array([[255 if val == -1 else 1 for val in rows] for rows in population], dtype=np.int8)
 	im.set_data(new_im)
@@ -359,7 +385,7 @@ def plot_ising(im, population):
 
 def test_ising():
 	'''
-	This function will test the calculate_agreement function in the Ising model
+	This function will test the calculate_agreement function in the Ising model.
 	'''
 	print("Testing ising model calculation")
 	
@@ -395,7 +421,9 @@ def test_ising():
 	print("Tests passed")
 
 def createranline(length):
-	'''This function returns a random line sequence of -1's and 1's of a particular length'''
+	'''
+	This function returns a random line sequence of -1's and 1's of a particular length.
+	'''
 	temp = []
 	for i in range(length):
 		ran = random.uniform(0,1)
@@ -406,7 +434,9 @@ def createranline(length):
 	return temp
 
 def createpop(length):
-	'''This function returns a square grid of a particular size'''
+	'''
+	This function returns a square grid of a particular size.
+	'''
 	pop = []
 	for j in range(length):
 		pop.append(createranline(length))
@@ -419,16 +449,27 @@ This section contains code for the Defuant Model - task 2 in the assignment
 ==============================================================================================================
 '''
 def initialize_opinions(population_size):
-    """Initialize the population's opinions randomly between 0 and 1"""
+    """
+    Initialize the population's opinions randomly between 0 and 1.
+    """
 
     return np.random.rand(population_size)
 
 def update_opinions(opinions, threshold, beta):
-	"""function to update the opinions for the population if a network is used. people's opinions are changed based off their neighbors"""
+	'''
+	This function should return the updated opinions of the population
+	after undergoing some calculations.
+	Inputs: opinions (list)
+			threshold (float)
+			beta (float)
+	Returns:
+			opinions (list)
+	'''
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	individual_opinion = opinions[rand_ind]
 	neighbour_found = False
+
 	# loop to ensure the original invidual isn't selected
 	while not neighbour_found:
 		# Randomly select one of its neighbors
@@ -450,29 +491,20 @@ def update_opinions(opinions, threshold, beta):
 		# round values to avoid floating point errors
 		opinions[rand_ind] = round(opinions[rand_ind],5)
 		opinions[neighbour_rand_ind] = round(opinions[neighbour_rand_ind],5)
+
 	return opinions
 
-def plot_opinions_hist(opinions, timestep, ax):
-
-    bins= [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-    ax.hist(opinions, bins=bins)
-    ax.set_title(f'Timestep = {timestep}')
-    ax.set_xlabel('Opinion')  # Set x-axis label
-    ax.set_ylabel('Frequency')  # Set y-axis label
-
-
-def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
-
-    x_axis = [timestep] * len(opinions)
-    ax.scatter(x_axis, opinions, color = 'red')
-    ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
-    ax.set_xlabel('Timestep')  # Set x-axis label
-    ax.set_ylabel('Opinion')  # Set y-axis label
-	
 def update_opinions_network(opinions, threshold, beta, network):
 	'''
- 	A function to update the opinions for the population if a network is used. People's opinions are changed based off their neighbors
-  	'''
+	This function should return the updated opinions of the population
+	for the networks after undergoing some calculations.
+	Inputs: opinions (list)
+			threshold (float)
+			beta (float)
+			network (object)
+	Returns:
+			opinions (list)
+	'''
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	rand_node = network.nodes[rand_ind]
@@ -506,14 +538,59 @@ def update_opinions_network(opinions, threshold, beta, network):
 
 	return opinions
 
-def defuant_main(population_size, network, threshold, beta, timestep):
+def plot_opinions_hist(opinions, timestep, ax):
+	'''
+	A function that plots a histogram of an opionion against it's frequency.
+	'''
+    bins= [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    ax.hist(opinions, bins=bins)
+    ax.set_title(f'Timestep = {timestep}')
+    ax.set_xlabel('Opinion')  # Set x-axis label
+    ax.set_ylabel('Frequency')  # Set y-axis label
 
+
+def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
+	'''
+	A function that plots a scatter plot of time against the opinions.
+	'''
+    x_axis = [timestep] * len(opinions)
+    ax.scatter(x_axis, opinions, color = 'red')
+    ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
+    ax.set_xlabel('Timestep')  # Set x-axis label
+    ax.set_ylabel('Opinion')  # Set y-axis label
+
+def plot_mean_op(data, total_time):
+	"""
+	A function to plot mean opinion against time.
+	"""
+	mean_fig, mean_ax = plt.subplots(1,1)  # fig for mean opinions
+	time = [t for t in range(total_time)]
+	mean_ax.plot(time, data)
+	mean_ax.set_xlabel("Time(s)")
+	mean_ax.set_ylabel("Mean Opinion")
+
+def defuant_main(population_size, network, threshold, beta, timestep):
+	'''
+	This function governs the main function of the defuant model.
+	If a network is called in the flags alonside the defuant model 
+	it creates an animation of the network evolving overtime and a 
+	graph of the mean opinion against time. If not it creates a 
+	scatter plot and histogram after 100 timesteps of the simulation.
+	Inputs: population_size (int)
+			network (object)
+			threshold (float)
+			beta (float)
+			timestep (int)
+	Outputs:
+			histogram
+			scatter plot
+			mean opinion
+	'''
 	# check if network should be used
 	if network == None:
 		# defuant on a grid
 		opinions = initialize_opinions(population_size)
 		fig, (ax1, ax2) = plt.subplots(1, 2)
-		
 	else:
 		# defuant on a network
 		opinions = [node.value for node in network.nodes]	
@@ -561,17 +638,10 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 		plot_mean_op(means, timestep)
 	plt.show()
 
-def plot_mean_op(data, total_time):
-	"""function to plot mean opinion against time"""
-	mean_fig, mean_ax = plt.subplots(1,1)  # fig for mean opinions
-	time = [t for t in range(total_time)]
-	mean_ax.plot(time, data)
-	mean_ax.set_xlabel("Time(s)")
-	mean_ax.set_ylabel("Mean Opinion")
-
-
 def test_defuant():
-	#Your code for task 2 goes here
+	'''
+	A function to test that the calculations for the defuant model are correct.
+	'''
 	print("Testing defuant model")
 
 	assert update_opinions([0.45, 0.55], 0.2, 0.2) == [0.47, 0.53], "defuant 1"
@@ -582,7 +652,9 @@ def test_defuant():
 	print('Tests Passed')
 
 def get_mean_op(opinions):
-	"""plotting mean opinions"""
+	"""
+	Plotting mean opinions.
+	"""
 	mean = sum(opinions) / len(opinions)
 	return mean
 
@@ -593,7 +665,9 @@ This section contains code for the main function- you should write some code for
 '''
 
 def all_flags():
-	"""function to check all flags that could be inputted"""
+	"""
+	A function to check all flags that could be inputted.
+	"""
 	
 	# create parser to access arguments from the terminal
 	parser = argparse.ArgumentParser(description='Opinion dynamics')
@@ -624,6 +698,7 @@ def all_flags():
 
 	# add arguements for task 5
 	parser.add_argument("-use_network", nargs="?", type=int, default=None)
+
 	# parse args
 	args = parser.parse_args()
 
@@ -679,6 +754,7 @@ def all_flags():
 			
 			# run defuant model
 			defuant_main(population_size, small_world_network, threshold, beta, timestep)
+
 	if args.test_defuant:
 		test_defuant()
 	if args.test_network:
