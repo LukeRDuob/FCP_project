@@ -332,30 +332,27 @@ def calculate_agreement(population, row, col, external=0.0):
 			col (int)
 			external (float)
 	Returns:
-			change_in_agreement (float)
+			Agreement (float)
 	'''
 	still_neighbours = True
 	sum = 0
-	# while not all neighbours visited
-	while still_neighbours:
-		# visits neighbours to the left and righ
-		for i in range(-1,2):
+	while still_neighbours: #While not all neighbours have been visited
+		for i in range(-1,2): #Visits neighbours horizontally (to the left and right) 
 				x = col + i
-				if x >=0 and x <= (len(population)-1) and x != col:
+				if x >=0 and x <= (len(population)-1) and x != col: #If columns of neighbours are physically to left or right
 					sum += (population[row,col] * population[row,x])
-				if x < 0:
-					sum += (population[row,col] * population[row,len(population)+x])
-				if x > (len(population)-1):
+				if x < 0: #If index of neighbouring column is less than 0
+					sum += (population[row,col] * population[row,len(population)+x]) 
+				if x > (len(population)-1): #If index of neighbouring column is greater than length of grid
 					sum += (population[row,col] * population[row,x-len(population)])
-		# visits neighbours above and below
-		for j in range(-1,2):
-			y = row + 
-			# y is the row of the neighbours
-			if y >=0 and y <= (len(population)-1) and y != row:
-				sum += (population[row,col] * population[y,col])
-			if y > (len(population)-1):
+		for j in range(-1,2): #Visits neighbours verticially (above and below)
+			#y is the rows of the neighbours
+			y = row + j
+			if y >=0 and y <= (len(population)-1) and y != row: #If rows of neighbours are physically above or below  
+				sum += (population[row,col] * population[y,col]) #Add to total agreement value
+			if y > (len(population)-1): #If index of neighbouring row is greater than length of grid
 				sum += (population[row,col] * population[y-len(population),col])
-			if y < 0:
+			if y < 0: #If index of neighbouring row is less than 0
 				sum += (population[row,col] * population[y+len(population),col])
 		sum += float(external)*population[row, col]
 		still_neighbours = False
