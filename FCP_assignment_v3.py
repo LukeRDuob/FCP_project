@@ -168,6 +168,8 @@ class Network:
 
 
 	def make_ring_network(self, N, neighbour_range=1):
+	""" Creates a ring network where every node is connected to the given number of neighbours.
+		e.g a neighbour rsange of 2 would connect the node to the two nodes either side of it."""
 		self.nodes=[]
 		#Create empty network first like before
 		for node_number in range(N):
@@ -180,6 +182,8 @@ class Network:
 				node.connections[(index-i)%N]=1 # Sets the neighbours either side of it to 1
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
+	""" This Function creates a small world network from a ring network of neighbour range 2.
+	Connections in the ring network have the probability given of being changed randomly"""
 		neighbour_range=2 
 		self.make_ring_network(N, neighbour_range) # Start with ring network with neighbour range 2
 		for (index, node) in enumerate(self.nodes): # loops through every node to find every connection
