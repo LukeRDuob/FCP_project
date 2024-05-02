@@ -9,25 +9,27 @@ import sys
 # create class for Queue (used in Breadth-first search)
 class Queue:
 
-    def __init__(self):
-        self.queue = []
+	def __init__(self):
+		"""instantiate queue object"""
+		self.queue = []
 
-    def push(self, item):
-        self.queue.append(item)
-    
-    def pop(self):
-        if not self.is_empty():
-            return self.queue.pop(0)
-        
-    def is_empty(self):
-          return len(self.queue)==0
+	def push(self, item):
+		"""push item onto stack"""
+		self.queue.append(item)
+	
+	def pop(self):
+		"""pop item from the stack"""
+		if not self.is_empty():
+			return self.queue.pop(0)
+		
+	def is_empty(self):
+		"""check if stack is empty"""
+		return len(self.queue)==0
 
 class Node:
 
 	def __init__(self, value, number, connections=None):
-		"""
-		Initialisation of node object.
-		"""	
+		"""instantiate node object"""	
 		self.parent = None
 		self.index = number
 		self.connections = connections
@@ -42,6 +44,9 @@ class Node:
 class Network: 
 
 	def __init__(self, nodes=None):
+		'''
+  		instantiate network object
+  		'''
 
 		if nodes is None:
 			self.nodes = []
@@ -598,8 +603,8 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 		ax_animation.set_axis_off()
 		means = [] 	#list of mean opinions
 		# set beta and threshold values to better visualise the change in opinions
-		beta = 0.5
-		threshold = 0.2
+		beta = 0.3
+		threshold = 0.3
 
 	plt.ion()
 	for t in range(timestep):
@@ -612,7 +617,7 @@ def defuant_main(population_size, network, threshold, beta, timestep):
 			# plot the network if it exists
 			network.plot(fig_animation, ax_animation)
 			fig_animation.canvas.draw()
-			plt.pause(0.05)
+			plt.pause(0.01)
 
 			#get mean opinion
 			means.append(get_mean_op(opinions))
