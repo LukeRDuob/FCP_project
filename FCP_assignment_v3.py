@@ -38,7 +38,7 @@ class Node:
 class Network: 
 
 	def __init__(self, nodes=None):
-		"""initialisation of network object"""
+
 		if nodes is None:
 			self.nodes = []
 		else:
@@ -168,8 +168,6 @@ class Network:
 
 
 	def make_ring_network(self, N, neighbour_range=1):
-	""" Creates a ring network where every node is connected to the given number of neighbours.
-		e.g a neighbour rsange of 2 would connect the node to the two nodes either side of it."""
 		self.nodes=[]
 		#Create empty network first like before
 		for node_number in range(N):
@@ -182,8 +180,6 @@ class Network:
 				node.connections[(index-i)%N]=1 # Sets the neighbours either side of it to 1
 
 	def make_small_world_network(self, N, re_wire_prob=0.2):
-	""" This Function creates a small world network from a ring network of neighbour range 2.
-	Connections in the ring network have the probability given of being changed randomly"""
 		neighbour_range=2 
 		self.make_ring_network(N, neighbour_range) # Start with ring network with neighbour range 2
 		for (index, node) in enumerate(self.nodes): # loops through every node to find every connection
@@ -329,10 +325,8 @@ def calculate_agreement(population, row, col, external=0.0):
 	return sum
 
 def agreement_change(population, row, col, external):
-	'''
- 	This function returns change in the agreement between its neighbours if an opinion is flipped.
-	Agreement after flip - Agreement before flip = Change in Agreement
- 	'''
+	'''This function returns change in the agreement between its neighbours if an opinion is flipped.
+	  Agreement after flip - Agreement before flip = Change in Agreement'''
 	initial_agreement = calculate_agreement(population,row, col, external)
 	population[row, col] = -1 * population[row, col]
 	new_agreement = calculate_agreement(population,row, col, external)
@@ -406,9 +400,7 @@ def test_ising():
 	print("Tests passed")
 
 def createranline(length):
-	'''
- 	This function returns a random line sequence of -1's and 1's of a particular length
-  	'''
+	'''This function returns a random line sequence of -1's and 1's of a particular length'''
 	temp = []
 	for i in range(length):
 		ran = random.uniform(0,1)
@@ -419,9 +411,7 @@ def createranline(length):
 	return temp
 
 def createpop(length):
-	'''
- 	This function returns a square grid of a particular size
-  	'''
+	'''This function returns a square grid of a particular size'''
 	pop = []
 	for j in range(length):
 		pop.append(createranline(length))
@@ -434,20 +424,16 @@ This section contains code for the Defuant Model - task 2 in the assignment
 ==============================================================================================================
 '''
 def initialize_opinions(population_size):
-    """
-    Initialize the population's opinions randomly between 0 and 1.
-    """
+    """Initialize the population's opinions randomly between 0 and 1"""
+
     return np.random.rand(population_size)
 
 def update_opinions(opinions, threshold, beta):
-	"""
- 	A function to update the opinions for the population. People's opinions are changed based off their neighbors.
-  	"""
+	"""function to update the opinions for the population if a network is used. people's opinions are changed based off their neighbors"""
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	individual_opinion = opinions[rand_ind]
 	neighbour_found = False
-	
 	# loop to ensure the original invidual isn't selected
 	while not neighbour_found:
 		# Randomly select one of its neighbors
@@ -491,7 +477,7 @@ def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
 def update_opinions_network(opinions, threshold, beta, network):
 	'''
  	A function to update the opinions for the population if a network is used. People's opinions are changed based off their neighbors
-  	"""
+  	'''
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	rand_node = network.nodes[rand_ind]
@@ -526,47 +512,64 @@ def update_opinions_network(opinions, threshold, beta, network):
 	return opinions
 
 def defuant_main(population_size, network, threshold, beta, timestep):
+
 	# check if network should be used
 	if network == None:
 		# defuant on a grid
 		opinions = initialize_opinions(population_size)
 		fig, (ax1, ax2) = plt.subplots(1, 2)
-
 	else:
 		# defuant on a network
 		opinions = [node.value for node in network.nodes]	
 		fig_animation,ax_animation = plt.subplots(1,1)  # fig for network animation
 		ax_animation.set_axis_off()
 		means = [] 	#list of mean opinions
+
 	plt.ion()
 	for t in range(timestep):
 		
 		if network == None:
+			# plot figures
 			plot_opinions_hist(opinions, t+1, ax1)
 			plot_opinions_scatter(opinions, t+1, ax2, beta, threshold)
 		else:
+			# plot the network if it exists
 			network.plot(fig_animation, ax_animation)
 			fig_animation.canvas.draw()
-			plt.pause(0.05)
+			plt.pause(0.01)
 
 			#get mean opinion
 			means.append(get_mean_op(opinions))
 		for step in range(timestep):
+			# update the opinions by the number of timesteps every timestep
 			if network==None:
+				# when no network provided
 				update_opinions(opinions, threshold, beta)
 			else:
+				# when network provided
 				update_opinions_network(opinions, threshold, beta, network)	
+
+		# clear the figure canvas to ready it for the next frame in the animation
 		if t != timestep-1:
 			if network == None:
 				ax1.clear()
 			else:
 				ax_animation.clear()
 	plt.ioff()
+
 	if network != None:
-		mean_fig, mean_ax = plt.subplots(1,1)  # fig for mean opinions
-		time = [t for t in range(timestep)]
-		mean_ax.plot(time, means)
+		# plot mean opinions over time
+		plot_mean_op(means, timestep)
 	plt.show()
+
+def plot_mean_op(data, total_time):
+	"""function to plot mean opinion against time"""
+	mean_fig, mean_ax = plt.subplots(1,1)  # fig for mean opinions
+	time = [t for t in range(total_time)]
+	mean_ax.plot(time, data)
+	mean_ax.set_xlabel("Time(s)")
+	mean_ax.set_ylabel("Mean Opinion")
+
 
 def test_defuant():
 	#Your code for task 2 goes here
@@ -674,8 +677,7 @@ def all_flags():
 			# create small world network
 			small_world_network = Network()
 			small_world_network.make_small_world_network(args.use_network, 0.2)
-			small_world_network.plot()
-			plt.show()
+			
 			# run defuant model
 			defuant_main(population_size, small_world_network, threshold, beta, timestep)
 	if args.test_defuant:
