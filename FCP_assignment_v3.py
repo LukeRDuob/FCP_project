@@ -329,8 +329,10 @@ def calculate_agreement(population, row, col, external=0.0):
 	return sum
 
 def agreement_change(population, row, col, external):
-	'''This function returns change in the agreement between its neighbours if an opinion is flipped.
-	  Agreement after flip - Agreement before flip = Change in Agreement'''
+	'''
+ 	This function returns change in the agreement between its neighbours if an opinion is flipped.
+	Agreement after flip - Agreement before flip = Change in Agreement
+ 	'''
 	initial_agreement = calculate_agreement(population,row, col, external)
 	population[row, col] = -1 * population[row, col]
 	new_agreement = calculate_agreement(population,row, col, external)
@@ -404,7 +406,9 @@ def test_ising():
 	print("Tests passed")
 
 def createranline(length):
-	'''This function returns a random line sequence of -1's and 1's of a particular length'''
+	'''
+ 	This function returns a random line sequence of -1's and 1's of a particular length
+  	'''
 	temp = []
 	for i in range(length):
 		ran = random.uniform(0,1)
@@ -415,7 +419,9 @@ def createranline(length):
 	return temp
 
 def createpop(length):
-	'''This function returns a square grid of a particular size'''
+	'''
+ 	This function returns a square grid of a particular size
+  	'''
 	pop = []
 	for j in range(length):
 		pop.append(createranline(length))
@@ -428,16 +434,20 @@ This section contains code for the Defuant Model - task 2 in the assignment
 ==============================================================================================================
 '''
 def initialize_opinions(population_size):
-    """Initialize the population's opinions randomly between 0 and 1"""
-
+    """
+    Initialize the population's opinions randomly between 0 and 1.
+    """
     return np.random.rand(population_size)
 
 def update_opinions(opinions, threshold, beta):
-	"""function to update the opinions for the population if a network is used. people's opinions are changed based off their neighbors"""
+	"""
+ 	A function to update the opinions for the population. People's opinions are changed based off their neighbors.
+  	"""
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	individual_opinion = opinions[rand_ind]
 	neighbour_found = False
+	
 	# loop to ensure the original invidual isn't selected
 	while not neighbour_found:
 		# Randomly select one of its neighbors
@@ -479,6 +489,9 @@ def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
     ax.set_ylabel('Opinion')  # Set y-axis label
 	
 def update_opinions_network(opinions, threshold, beta, network):
+	'''
+ 	A function to update the opinions for the population if a network is used. People's opinions are changed based off their neighbors
+  	"""
 	# Randomly select an individual
 	rand_ind = random.randint(0, len(opinions)-1)
 	rand_node = network.nodes[rand_ind]
