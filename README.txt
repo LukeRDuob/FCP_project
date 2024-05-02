@@ -38,6 +38,6 @@ $ python3 FCP_assignment.py -small_world 10 #This should create a small-worlds n
 $ python3 FCP_assignment.py -small_world 10 -re_wire 0.1 #This should create a small worlds network with a re-wiring probability of 0
 
 Flags for Task 5:
-$ python3 FCP_assignment.py -defuant -use_network 10 #This should solve the defuant model on a small world network of size 10.
+$ python3 FCP_assignment.py -defuant -use_network 100 #This should solve the defuant model on a small world network of size 100.
 
 Link to Github repository - https://github.com/LukeRDuob/FCP_project
