@@ -38,7 +38,7 @@ class Node:
 class Network: 
 
 	def __init__(self, nodes=None):
-
+		"""initialisation of network object"""
 		if nodes is None:
 			self.nodes = []
 		else:
