@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import argparse
 import random
-import sys
 
 
 # create class for Queue (used in Breadth-first search)
