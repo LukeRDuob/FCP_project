@@ -544,22 +544,22 @@ def plot_opinions_hist(opinions, timestep, ax):
 	'''
 	A function that plots a histogram of an opionion against it's frequency.
 	'''
-    bins= [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-    ax.hist(opinions, bins=bins)
-    ax.set_title(f'Timestep = {timestep}')
-    ax.set_xlabel('Opinion')  # Set x-axis label
-    ax.set_ylabel('Frequency')  # Set y-axis label
+	bins= [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+	ax.hist(opinions, bins=bins)
+	ax.set_title(f'Timestep = {timestep}')
+	ax.set_xlabel('Opinion')  # Set x-axis label
+	ax.set_ylabel('Frequency')  # Set y-axis label
 
 
 def plot_opinions_scatter(opinions, timestep, ax, beta, threshold):
 	'''
 	A function that plots a scatter plot of time against the opinions.
 	'''
-    x_axis = [timestep] * len(opinions)
-    ax.scatter(x_axis, opinions, color = 'red')
-    ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
-    ax.set_xlabel('Timestep')  # Set x-axis label
-    ax.set_ylabel('Opinion')  # Set y-axis label
+	x_axis = [timestep] * len(opinions)
+	ax.scatter(x_axis, opinions, color = 'red')
+	ax.set_title(f'Coupling: {beta}, Threshold: {threshold}')
+	ax.set_xlabel('Timestep')  # Set x-axis label
+	ax.set_ylabel('Opinion')  # Set y-axis label
 
 def plot_mean_op(data, total_time):
 	"""
